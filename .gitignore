@@ -1,3 +1,4 @@
+/vendor
 /.bundle/
 /.yardoc
 /Gemfile.lock
@@ -7,3 +8,5 @@
 /pkg/
 /spec/reports/
 /tmp/
+*.swp
+.ruby-version
