@@ -3,30 +3,30 @@ require 'spec_helper'
 module MondoApi
   RSpec.describe Webhooks do
     let(:access_token) {"access_token"}
-    let(:mondo_account_id) {"mondo_account_id"}
+    let(:account_id) {"mondo_account_id"}
     let(:callback_url) { "url" }
 
     it "returns a failed response if the register request doesn't succeed" do
       http_client = double("HttpClient", post: double(success?: false))
 
-      webhook = described_class.new(http_client: http_client)
+      webhook = described_class.new(http_client: http_client, access_token: access_token, account_id: account_id)
 
-      expect(webhook.register(access_token, mondo_account_id, callback_url).success?).to be false
+      expect(webhook.register(callback_url).success?).to be false
     end
 
     it "returns a failed response if the list request doesn't succeed" do
       http_client = double("HttpClient", get: double(success?: false, "[]": nil))
 
-      webhook = described_class.new(http_client: http_client)
+      webhook = described_class.new(http_client: http_client, access_token: access_token, account_id: account_id)
 
-      expect(webhook.list(access_token, mondo_account_id).success?).to be false
+      expect(webhook.list.success?).to be false
     end
 
     it "makes a request to register a webhook with correct token" do
       http_client = double("HttpClient", post: double(success?: true))
-      webhook = described_class.new(http_client: http_client)
+      webhook = described_class.new(http_client: http_client, access_token: access_token, account_id: account_id)
       body = {
-        account_id: mondo_account_id,
+        account_id: account_id,
         url: callback_url
       }
       headers = { "Authorization" => "Bearer #{access_token}" }
@@ -35,22 +35,20 @@ module MondoApi
                                                  body: body,
                                                  headers: headers)
 
-      webhook.register(access_token, mondo_account_id, callback_url)
+      webhook.register(callback_url)
     end
 
     it "makes a request to the webhooks listing" do
-      webhooks = [{ "account_id" => mondo_account_id, "url" => callback_url }]
+      webhooks = [{ "account_id" => account_id, "url" => callback_url }]
       http_client = double("HttpClient",
                            get: OpenStruct.new(success?: true, webhooks: webhooks))
-      webhook = described_class.new(http_client: http_client)
-      body = { account_id: mondo_account_id }
+      webhook = described_class.new(http_client: http_client, access_token: access_token, account_id: account_id)
       headers = { "Authorization" => "Bearer #{access_token}" }
 
-      expect(http_client).to receive(:get).with(Webhooks::WEBHOOK_URL,
-                                                body: body,
+      expect(http_client).to receive(:get).with("#{Webhooks::WEBHOOK_URL}?account_id=#{account_id}",
                                                 headers: headers)
 
-      expect(webhook.list(access_token, mondo_account_id).body).to eq(webhooks)
+      expect(webhook.list.body).to eq(webhooks)
     end
   end
 end

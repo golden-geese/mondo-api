@@ -1,3 +1,5 @@
+require "httparty"
+
 require "mondo_api/response"
 require "mondo_api/authentication"
 require "mondo_api/webhooks"

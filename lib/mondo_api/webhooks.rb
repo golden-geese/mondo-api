@@ -2,34 +2,35 @@ module MondoApi
   class Webhooks
     WEBHOOK_URL = "https://api.getmondo.co.uk/webhooks"
 
-    def initialize(http_client: HTTParty)
+    def initialize(http_client: HTTParty, access_token:, account_id:)
       @http_client = http_client
+      @access_token = access_token
+      @account_id = account_id
     end
 
-    def register(access_token, mondo_account_id, callback_url)
+    def register(callback_url)
       response = @http_client.post(WEBHOOK_URL,
-                                   body: body(mondo_account_id, callback_url),
-                                   headers: headers(access_token))
+                                   body: body(callback_url),
+                                   headers: headers)
 
       Response.new(success: response.success?, body: response)
     end
 
-    def list(access_token, mondo_account_id)
-      response = @http_client.get(WEBHOOK_URL,
-                                  body: { account_id: mondo_account_id },
-                                  headers: headers(access_token))
+    def list
+      response = @http_client.get("#{WEBHOOK_URL}?account_id=#{@account_id}",
+                                  headers: headers)
 
       Response.new(success: response.success?, body: response["webhooks"])
     end
 
     private
 
-    def body(mondo_account_id, callback_url)
-      { account_id: mondo_account_id, url: callback_url }
+    def body(callback_url)
+      { account_id: @account_id, url: callback_url }
     end
 
-    def headers(access_token)
-      {"Authorization" => "Bearer #{access_token}"}
+    def headers
+      {"Authorization" => "Bearer #{@access_token}"}
     end
   end
 end
