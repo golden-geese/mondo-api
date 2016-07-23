@@ -16,5 +16,9 @@ module MondoApi
     def authentication(client_id:, client_secret:)
       Authentication.new(http_client: @http_client, client_id: client_id, client_secret: client_secret)
     end
+
+    def accounts
+      Accounts.new(access_token: @access_token)
+    end
   end
 end
