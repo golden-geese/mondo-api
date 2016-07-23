@@ -12,6 +12,4 @@ module MondoApi
       Authentication.new(http_client: @http_client, client_id: client_id, client_secret: client_secret)
     end
   end
-
-  class RequestError < StandardError; end
 end

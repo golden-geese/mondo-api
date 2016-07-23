@@ -11,16 +11,15 @@ module MondoApi
                                    body: body(mondo_account_id, callback_url),
                                    headers: headers(access_token))
 
-      raise RequestError unless response.success?
+      Response.new(success: response.success?, body: response)
     end
 
     def list(access_token, mondo_account_id)
       response = @http_client.get(WEBHOOK_URL,
                                   body: { account_id: mondo_account_id },
                                   headers: headers(access_token))
-      raise RequestError unless response.success?
 
-      response["webhooks"]
+      Response.new(success: response.success?, body: response["webhooks"])
     end
 
     private

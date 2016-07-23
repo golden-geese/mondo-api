@@ -6,22 +6,20 @@ module MondoApi
     let(:mondo_account_id) {"mondo_account_id"}
     let(:callback_url) { "url" }
 
-    it "raises an error if the register request doesn't succeed" do
+    it "returns a failed response if the register request doesn't succeed" do
       http_client = double("HttpClient", post: double(success?: false))
 
       webhook = described_class.new(http_client: http_client)
 
-      expect { webhook.register(access_token, mondo_account_id, callback_url) }
-        .to raise_exception(MondoApi::RequestError)
+      expect(webhook.register(access_token, mondo_account_id, callback_url).success?).to be false
     end
 
-    it "raises an error if the list request doesn't succeed" do
-      http_client = double("HttpClient", get: double(success?: false))
+    it "returns a failed response if the list request doesn't succeed" do
+      http_client = double("HttpClient", get: double(success?: false, "[]": nil))
 
       webhook = described_class.new(http_client: http_client)
 
-      expect { webhook.list(access_token, mondo_account_id) }
-        .to raise_exception(MondoApi::RequestError)
+      expect(webhook.list(access_token, mondo_account_id).success?).to be false
     end
 
     it "makes a request to register a webhook with correct token" do
@@ -52,7 +50,7 @@ module MondoApi
                                                 body: body,
                                                 headers: headers)
 
-      expect(webhook.list(access_token, mondo_account_id)).to eq(webhooks)
+      expect(webhook.list(access_token, mondo_account_id).body).to eq(webhooks)
     end
   end
 end

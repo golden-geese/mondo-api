@@ -13,8 +13,7 @@ module MondoApi
                                    body: query(authorization_code, redirect_uri),
                                    headers: {"Content-Type" => "application/x-www-form-urlencoded"})
 
-      raise RequestError unless response.success?
-      response["access_token"]
+      Response.new(success: response.success?, body: response["access_token"])
     end
 
     private

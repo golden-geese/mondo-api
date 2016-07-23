@@ -4,14 +4,13 @@ require 'spec_helper'
 module MondoApi
   describe Authentication do
     it "raises an error if the request doesn't succeed" do
-      http_client = double("HttpClient", post: double(success?: false))
+      http_client = double("HttpClient", post: double(success?: false, "[]": nil))
 
       auth = described_class.new(http_client: http_client,
                                  client_id: "client-id",
                                  client_secret: "client_secret")
 
-      expect{auth.get_access_token("authorization token", "redirect-uri")}
-        .to raise_exception(MondoApi::RequestError)
+      expect(auth.get_access_token("authorization token", "redirect-uri").success?).to be false
     end
 
     it 'exchanges a authorization token for an access token' do
@@ -29,7 +28,7 @@ module MondoApi
         code: "authorization token"
       }
 
-      expect(auth.get_access_token("authorization token", "redirect-uri")).to eq(access_token)
+      expect(auth.get_access_token("authorization token", "redirect-uri").body).to eq(access_token)
       expect(http_client).to have_received(:post).
                               with("https://api.getmondo.co.uk/oauth2/token",
                                    body: query,
